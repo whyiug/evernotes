@@ -1,0 +1,693 @@
+---
+title: jQuery
+notebook: JavaScript
+tags:javascript
+---
+<!-- MarkdownTOC -->
+
+- [jQuery的特性](#jquery的特性)
+- [jQuery构造函数](#jquery构造函数)
+- [jQuery构造函数返回的结果集](#jquery构造函数返回的结果集)
+- [jQuery实例的方法](#jquery实例的方法)
+    - [过滤](#过滤)
+    - [DOM相关方法](#dom相关方法)
+    - [添加、复制、移动网页元素的方法](#添加、复制、移动网页元素的方法)
+    - [动画效果方法](#动画效果方法)
+    - [其他方法](#其他方法)
+- [事件处理](#事件处理)
+    - [jQuery常用工具方法](#jquery常用工具方法)
+
+<!-- /MarkdownTOC -->
+
+# jQuery的特性
+* 简述  
+
+> jQuery是最牛逼的JavaScript函数库，主要有两个优点。  一是操作DOM简单方便(JavaScript query嘛)；二是统一了不同浏览器的API接口。  
+> jQuery的基本思想是，先选择，后处理。  find something, do something;  
+> jQuery函数库中内置对象jQuery，简写为$
+
+* jQuery本质上是一个构造函数，主要作用是创建jQuery实例。  比如`$("li")`创建了li元素的jQuery实例。  注意，不是DOM对象。    
+通常用下标运算符将jQuery对象转换为DOM对象。  
+
+```js
+$('body').nodeType // undefined 
+$('body') instanceof jQuery // true
+// 注意：jQuery构造函数返回的是jQuery对象，而不是DOM对象
+```
+# jQuery构造函数
+* 基础选择器---CSS选择器
+
+```js
+$("*") // 所有
+$("#lastname") // id选择器
+$(".intro") // class选择器
+$("h1,div,p") // 多项
+$("div p") // 后代
+$("div>p")// 直接后代
+$("prev + next") // 选择同级中prev之后紧邻的next，不包括prev
+$("prev + sibling") // 选择同级中prev之后所有的sibling，不包括prev
+```
+* 过滤器
+
+```js
+$("li:first")
+$("li:eq(1)")
+$("li:contains('javascript')")
+$("div:has(p)")
+$("input:hidden")
+$("input:visible")
+$("[title='Tom']")
+$("[title!='Tom']")
+$("[title*='Tom']")
+$("p:first-child")
+```
+* 表单选择器
+
+```js
+$("#frmTest :input")
+$("#frmTest :text")
+$("#frmTest :password")
+$("#frmTest :radio")
+$("#frmTest :checkbox")
+$("#frmTest :checked")
+$("#frmTest :selected")
+$("#frmTest :submit")
+// 以下三种结果一样
+$('#frmTest input[type="text"]');
+$('#frmTest input:text');
+$('#frmTest :text')
+// 根据name和value来选择表单
+$("#frmTest input[name=productName][value=a]")
+```
+* jQuery构造函数的参数也可以是DOM对象或者字符串
+
+```js
+$(document.body) instanceof jQuery // true
+$([document.body, document.head]) // 多个DOM对象
+
+// HTML字符串作为参数，与从CSS选择器生成的jQuery实例完全一样。唯一的区别就是，它对应的DOM结构不属于当前文档
+$('<li class="greet">test</li>')
+//相当于
+$( '<li>',      
+html: 'test',
+  'class': 'greet'
+});  
+```
+
+* jQuery的第二个参数，表示搜索的起点
+
+```js
+$('li', someElement);
+//可以是jQuery对象或者DOM对象
+```
+
+# jQuery构造函数返回的结果集
+* jQuery对象是一个类似数组的对象，包含了被选中的网页元素。  
+* length属性
+
+```js
+//判断是否选中某个元素
+if($('div.foo')){} //错误 
+if($('div.foo').length){} //标准
+```
+* 下标运算符，返回的是DOM对象。  和jQuery实例的get方法一样，区别于eq方法
+
+```js
+$('li')[0] instanceof jQuery // false
+$('li')[0] instanceof Element // true
+$('li').get(0) instanceof Element // true
+// 区别于$('li:first'), $('li:eq(0)')和$('li').eq(0)
+$('li:first') instanceof jQuery // true
+$('li:eq(0)') instanceof jQuery // true
+$('li').eq(0) instanceof jQuery // true
+```
+
+* is方法返回一个布尔值，表示选中的结果是否符合某个条件。  这个用来验证的条件，可以是CSS选择器，也可以是一个函数，或者DOM元素和jQuery实例。  
+
+```js
+$('li').is('li') // true 
+$('li').is($('.item'))
+$('li').is(document.querySelector('li'))
+$('li').is(function() {
+      return $("strong", this).length === 0;
+});
+```
+* each和map方法
+
+```js
+$('li').each(function(index,element){
+    $(element).prepend('<em>'+index+': </em>')
+});
+// map方法返回一个新的jQuery对象
+$("input").map(function (index, element){
+    return $(this).val();
+})
+.get()
+.join(",")
+// 将所有input元素取出，得到数组，得到逗号分隔的字符串
+```
+* 内置循环：当对jQuery结果集进行处理时，会直接调用jQuery内置的某种方法，可以省略each和map
+
+```js
+$('.class').addClass('highlight');
+
+$(".class").css("color", "green").css("font-size", "16px");
+// 应该写成
+$(".class").css({ 
+  "color": "green",
+  "font-size": "16px"
+});
+```
+* 链式操作  
+jQuery最方便的一点就是，它的大部分方法返回的都是jQuery对象，因此可以链式操作。
+
+```js
+$('li').click(function (){
+    $(this).addClass('clicked');
+})
+.find('span')
+.attr( 'title', 'Hover over me' );
+```
+
+* $(document).ready方法接受一个函数作为参数，将该参数作为document对象的DOMContentLoaded事件的回调函数。  也就是说，当页面解析完成（即下载完```</html>```标签）以后，在所有外部资源（图片、脚本等）完成加载之前，该函数就会立刻运行。  
+
+```js
+$( document ).ready(function() {
+  console.log( 'ready!' );
+});
+// 简写为
+$(function() {
+  console.log( 'ready!' );
+});
+```
+* $.noconflict
+# jQuery实例的方法
+## 过滤
+* first()和last()方法 
+
+```js
+$("li").first();
+$("li").last();
+```
+* next() 和 prev()方法，返回的是同级元素。  可以带参数。  
+
+```js
+$("li").first().next('.item')
+$("li").last().prev('.item')
+```
+* parent() parents() children()方法，可以带参数。  
+
+```js
+$("p").parent()
+$("p").parent(".selected")
+$("p").parents()
+$("p").parents("div")
+// children方法返回选中元素的所有子元素。  
+$("div").children()
+$("div").children(".selected")
+```
+* siblings() nextAll() prevall()方法，返回当前元素的所有/后面/前面的同级元素
+
+```js
+$('li').first().siblings();
+$('li').first().siblings('.item');
+$('li').first().nextAll();
+$('li').last().prevAll();
+$('li').closest('div') // 返回所有上级元素中，第一个符合条件的一个
+```
+* closest,find方法
+
+```js
+$('li').closest('div');// li上级中的第一个div
+$('div').find('li');// div下级中的第一个li
+```
+* add方法，addBack方法，end方法
+
+```js
+// add方法用于为结果集添加元素。  
+$('li').add('p')
+// addBack方法将当前元素加回原始的结果集。  
+$('li').parent().addBack()
+// end方法用于返回原始的结果集。  
+$('li').first().end()
+```
+* filter方法，not方法，has方法 用来过滤  
+filter方法用于过滤结果集，它可以接受多种类型的参数，只返回与参数一致的结果。  
+
+```js
+// 返回符合CSS选择器的结果
+$('li').filter('.item')
+// 返回函数返回值为true的结果
+$("li").filter(function(index) {
+    return index % 2 === 1;
+})
+// 返回符合特定DOM对象的结果
+$("li").filter(document.getElementById("unique"))
+// 返回符合特定jQuery实例的结果
+$("li").filter($("#unique"))
+
+// not方法的用法与filter方法完全一致，但是返回相反的结果，即过滤掉匹配项。  
+$('li').not('.item')
+
+// has方法与filter方法作用相同，但是只过滤出子元素符合条件的元素。  
+$("li").has("ul")
+```
+## DOM相关方法  
+
+* html()方法返回该元素包含的html代码，text()方法返回包含的文本
+
+```js
+<p><em>Hello World!</em></p>
+$('p').html() // <em>Hello World!</em>
+$('p').text() // Hello World!
+//jQuery的许多方法都是取值器（getter）与赋值器（setter）的合一，即取值和赋值都是同一个方法，不使用参数的时候为取值器，使用参数的时候为赋值器。  
+$('p').html('<strong>你好</strong>') // 网页代码变为<p><strong>你好</strong></p>
+ $('p').text('你好') // 网页代码变为<p>你好</p>
+// html方法和text方法还可以接受一个函数作为参数,第一个是网页元素在集合中的位置，第二个参数是网页元素原来的代码或文本。  
+$('li').html(function(i,v){
+    return (i+': '+v);
+})
+// <li>Hello</li>
+// <li>World</li>
+// 变为
+// <li>0: Hello</li>
+// <li>1: World</li>
+```
+* addClass方法，removeClass方法，toggleClass方法  
+addClass方法用于添加一个类，removeClass方法用于移除一个类，toggleClass方法用于折叠一个类（如果无就添加，如果有就移除）
+
+```js
+$('li').addClass('special')
+$('li').removeClass('special')
+$('li').toggleClass('special')
+```
+* CSS方法
+
+```js
+// 取值
+$('h1').css('fontSize');//可以采用驼峰法则命名，比如font-size写作fontSize。  
+// 赋值
+$('li').css('padding-left', '20px')
+$('li').css({
+  'padding-left': '20px'
+});
+```
+* val方法  
+val方法返回结果集第一个元素的值，或者设置当前结果集所有元素的值。  
+
+```js
+$('input[type="text"]').val(); // 取值
+$('input[type="text"]').val('new value'); // 赋值
+```
+* prop方法，attr方法
+* removeProp,removeAttr方法
+* data方法
+## 添加、复制、移动网页元素的方法
+* append和appendTo方法
+
+```js
+$("div").append("<p>World</p>");
+// 或者
+$("<p>World</p>").appendTo("div");
+// <div>Hello </div>
+// 变为
+// <div>Hello <p>World</p></div>
+```
+* prepend,prependTo方法
+* after,insertAfter方法
+* before,insertBefore方法
+* wrap方法，wrapAll方法，unwrap方法，wrapInner方法
+* clone方法
+* remove方法，detach方法，replaceWith方法
+
+## 动画效果方法
+## 其他方法
+# 事件处理
+* 简单事件的绑定  
+
+> click  
+> keydown  
+> keypress  
+> keyup  
+> mouseover  
+> mouseout  
+> mouseenter  
+> mouseleave  
+> scroll  
+> focus  
+> blur  
+> resize  
+> hover  
+
+```js
+$('li').click(function (e){
+  console.log($(this).text());
+});
+// 触发相应事件。  只触发相应的回调函数，不触发浏览器的默认行为（比如浏览器指向新的网址）。  
+$('li').click()
+
+// 捕捉用户按下escape键的函数
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) {
+    $('body').toggleClass('show-nav');
+    // $('body').removeClass('show-nav');
+  }
+// hover方法
+$(selector).hover(handlerIn, handlerOut)
+// 等同于
+$(selector).mouseenter(handlerIn).mouseleave(handlerOut)
+// hover常跟toggle一起
+$('.btn').hover(function () {
+  $(this).toggleClass('hover');
+});
+});
+```
+* on, off, trigger方法  
+on方法接受两个参数，第一个是事件名称，第二个是回调函数  
+> 注意，在回调函数内部，this关键字指的是发生该事件的DOM对象。  
+> 为了使用jQuery提供的方法，必须将DOM对象转为jQuery对象，因此写成$(this)
+
+```js
+$('li').on('click', function (e){
+  console.log($(this).text());
+});
+// on方法允许一次为多个事件指定同样的回调函数。  
+$('input[type="text"]').on('focus blur', function (){
+  console.log('focus or blur');
+});
+// on方法还可以为当前元素的某一个子元素，添加回调函数。  
+$('ul').on('click', 'li', function (e){
+  console.log(this);
+});
+// on方法还允许向回调函数传入数据。  
+$("ul" ).on("click", {name: "张三"}, function (event){
+    console.log(event.data.name);
+});
+
+// trigger方法用于触发回调函数，它的参数就是事件的名称
+$('li').trigger('click');
+// off方法用于移除事件的回调函数。  
+$('li').off('click');
+```
+
+* 事件的名称空间  
+同一个事件有时绑定了多个回调函数，这时如果想移除其中的一个回调函数，可以采用“名称空间”的方式，即为每一个回调函数指定一个二级事件名，然后再用off方法移除这个二级事件的回调函数。
+
+```js
+$('li').on('click.logging', function (){
+  console.log('click.logging callback removed');
+});
+$('li').trigger('click.logging')
+$('li').off('click.logging');
+```
+
+* event对象
+
+> 当回调函数被触发后，它们的参数通常是一个事件对象event  
+> event对象有以下属性:
+> type：事件类型，比如click。  
+> which：触发该事件的鼠标按钮或键盘的键。  
+> target：事件发生的初始对象。  
+> data：传入事件对象的数据。  
+> pageX：事件发生时，鼠标位置的水平坐标（相对于页面左上角）。  
+> pageY：事件发生时，鼠标位置的垂直坐标（相对于页面左上角）。    
+> 以下方法：  
+> preventDefault：取消浏览器默认行为。  
+> stopPropagation：阻止事件向上层元素传播。  
+
+```js
+$(document).on('click', function (e){
+    // ...
+});
+```
+* one方法---一次性事件  
+one方法指定一次性的回调函数，即这个函数只能运行一次。  这对提交表单很有用。  
+
+```js
+$("#button").one( "click", function() { 
+    return false; 
+} );
+```
+## jQuery常用工具方法
+* $.trim()
+
+```js
+$.trim('   Hello   ') // Hello
+```
+* $.contains()  
+$.contains方法返回一个布尔值，表示某个DOM元素（第二个参数）是否为另一个DOM元素（第一个参数）的下级元素。  
+
+```js
+$.contains(document.documentElement, document.body); 
+// true
+
+$.contains(document.body, document.documentElement); 
+// false
+```
+* $.each，$.map方法  
+$.each方法用于遍历数组和对象，然后返回原始对象。  它接受两个参数，分别是数据集合和回调函数。  
+
+```js
+$.each([ 52, 97 ], function( index, value ) {
+  console.log( index + ": " + value );
+});
+// 0: 52 
+// 1: 97 
+
+var obj = {
+  p1: "hello",
+  p2: "world"
+};
+$.each( obj, function( key, value ) {
+  console.log( key + ": " + value );
+});
+// p1: hello
+// p2: world
+
+// $.map方法也是用来遍历数组和对象，但是会返回一个新对象。  
+var a = ["a", "b", "c", "d", "e"];
+a = $.map(a, function (n, i){
+  return (n.toUpperCase() + i);
+});
+// ["A0", "B1", "C2", "D3", "E4"]
+```
+* $.inArray  
+$.inArray方法返回一个值在数组中的位置（从0开始）。  如果该值不在数组中，则返回-1。  
+
+```js
+var a = [1,2,3,4];
+$.inArray(4,a) // 3
+```
+* $.extend
+
+```js
+// $.extend方法用于将多个对象合并进第一个对象。  
+var o1 = {p1:'a',p2:'b'};
+var o2 = {p1:'c'};
+
+$.extend(o1,o2);
+o1.p1 // "c"
+// $.extend的另一种用法是生成一个新对象，用来继承原有对象。  这时，它的第一个参数应该是一个空对象。  
+var o1 = {p1:'a',p2:'b'};
+var o2 = {p1:'c'};
+
+var o = $.extend({},o1,o2);
+o
+// Object {p1: "c", p2: "b"}
+
+// 默认情况下，extend方法生成的对象是“浅拷贝”，也就是说，如果某个属性是对象或数组，那么只会生成指向这个对象或数组的指针，而不会复制值。  如果想要“深拷贝”，可以在extend方法的第一个参数传入布尔值true。  
+var o1 = {p1:['a','b']};
+
+var o2 = $.extend({},o1);
+var o3 = $.extend(true,{},o1);
+o1.p1[0]='c';
+
+o2.p1 // ["c", "b"]
+o3.p1 // ["a", "b"] 
+// 上面代码中，o2是浅拷贝，o3是深拷贝。  结果，改变原始数组的属性，o2会跟着一起变，而o3不会。  
+```
+* $.proxy方法
+* $.data，$.removeData
+* $.parseHTML，$.parseJSON，$.parseXML
+* $.makeArray  
+$.makeArray方法将一个类似数组的对象，转化为真正的数组。  
+
+```js
+var a = $.makeArray(document.getElementsByTagName("div"));
+```
+* $.merge  
+$.merge方法用于将一个数组（第二个参数）合并到另一个数组（第一个参数）之中。  
+
+```js
+var a1 = [0,1,2];
+var a2 = [2,3,4];
+$.merge(a1, a2);
+
+a1
+// [0, 1, 2, 2, 3, 4]
+```
+* $.now()  
+返回毫秒数，相当于(new Date).getTime()
+* 判断数据类型的一些方法
+* $.ajax()方法  
+调用该方法的时候，浏览器会向服务器发出http请求。    
+$.ajax()的用法主要有两种：
+
+```js
+$.ajax({options});
+$.ajax(url, {options});
+// url是服务器网址，options是一个对象参数
+
+//范例
+$.ajax({
+  async: true,
+  url: '/url/to/json',
+  type: 'GET',
+  data : { id : 123 },
+  dataType: 'json',
+  timeout: 30000,
+  success: successCallback,
+  error: errorCallback,
+  complete: completeCallback,
+  statusCode: {
+        404: handler404,
+        500: handler500
+  }
+})
+
+function successCallback(json) {
+    $('<h1/>').text(json.title).appendTo('body');
+}
+
+function errorCallback(xhr, status){
+    console.log('出问题了！');
+}
+
+function completeCallback(xhr, status){
+    console.log('Ajax请求已结束。  ');
+}
+```
+> accepts：将本机所能处理的数据类型，告诉服务器。    
+> async：该项默认为true，如果设为false，则表示发出的是同步请求。    
+> beforeSend：指定发出请求前，所要调用的函数，通常用来对发出的数据进行修改。    
+> cache：该项默认为true，如果设为false，则浏览器不缓存返回服务器返回的数据。  注意，浏览器本身就不会缓存POST请求返回的数据，所以即使设为false，也只对HEAD和GET请求有效。  
+> complete：指定当HTTP请求结束时（请求成功或请求失败的回调函数，此时已经运行完毕）的回调函数。  不管请求成功或失败，该回调函数都会执行。  > 它的参数为发出请求的原始对象以及返回的状态信息。  
+> contentType：发送到服务器的数据类型。  
+> context：指定一个对象，作为所有Ajax相关的回调函数的this对象。  
+> crossDomain：该属性设为true，将强制向相同域名发送一个跨域请求（比如JSONP）。  
+> data：向服务器发送的数据，如果使用GET方法，此项将转为查询字符串，附在网址的最后。  
+> dataType：向服务器请求的数据类型，可以设为text、html、script、json、jsonp和xml。  
+> error：请求失败时的回调函数，函数参数为发出请求的原始对象以及返回的状态信息。  
+> headers：指定HTTP请求的头信息。  
+> ifModified：如果该属性设为true，则只有当服务器端的内容与上次请求不一样时，才会发出本次请求。  
+> jsonp：指定JSONP请求“callback=?”中的callback的名称。  
+> jsonpCallback: 指定JSONP请求中回调函数的名称。  
+> mimeType：指定HTTP请求的mime type。  
+> password：指定HTTP认证所需要的密码。  
+> statusCode：值为一个对象，为服务器返回的状态码，指定特别的回调函数。  
+> success：请求成功时的回调函数，函数参数为服务器传回的数据、状态信息、发出请求的原始对象。  
+> timeout: 等待的最长毫秒数。  如果过了这个时间，请求还没有返回，则自动将请求状态改为失败。  
+> type：向服务器发送信息所使用的HTTP动词，默认为GET，其他动词有POST、PUT、DELETE。  
+> url：服务器端网址。  这是唯一必需的一个属性，其他属性都可以省略。  
+> username：指定HTTP认证的用户名。  
+> xhr：指定生成XMLHttpRequest对象时的回调函数。    
+
+将url独立出来作为ajax的第一个参数。比如
+
+```js
+$.ajax('/url/to/json', {
+    type: 'GET',
+    dataType: 'json',
+    success: successCallback,
+    error: errorCallback,
+});
+```
+data属性可以写成一个对象
+
+```js
+$.ajax({
+  url: '/remote/url',
+  data: {
+    param1: 'value1',
+    param2: 'value2',
+    ...
+  }
+});
+
+// 相当于
+$.ajax({
+    url: '/remote/url?param1=value1&param2=value2...'
+}});
+```
+* $.get(), $.post()方法  
+当服务器请求方式是get或者post时可以简写为$.get和$.post。接受三个参数。第一个参数是服务器地址（必须），剩下的两个参数是发送给服务器的数据和回调函数（两者皆可选）
+
+```js
+$.get('/data/people.html', function(html) {
+    $("#target").html(html);
+});
+$.post('/data/save', {name: 'Rebecca'}, function(resp) {
+    console.log(JSON.parse(resp));
+});
+// 对应的ajax写法
+$.ajax(
+    type: 'POST',
+    url: '/data/save'
+    data: {name: 'Rebecca'},
+    success: function (resp){
+    console.log(JSON.parse(resp));
+});
+```
+* $.getJSON()方法  
+当服务器返回JSON格式数据时，$.ajax可以简写为$.getJSON
+
+```js
+$.getJSON('/url/to/json', {'a': 1}, function(data){
+    console.log(data);
+});
+// 替代了
+$.ajax({
+    dataType: "json",
+    url: 'url/to/data',
+    data: {'a': 1},
+    success: function(data){
+        console.log(data);
+}
+});
+```
+* $.getScript()  
+$.getScript方法用于从服务器端加载一个脚本文件。
+
+```js
+$.getScript('/static/js/myScript.js', function() {
+    functionFromMyScript();
+});
+```
+* $.fn.load()
+
+## deferred对象  
+jQuery的所有Ajax操作函数，默认返回的就是一个deferred对象。
+
+# jQuery-UI函数库
+
+* 拖拽  
+拖曳插件draggable的功能是拖动被绑定的元素
+
+```js
+$("#x").draggable({containment:"parent"})
+$("#y").draggable({containment:"parent",axis:"y"})
+```
+* 放置
+
+```js
+$(selector).droppable({options})
+```
+* 拖拽排序
+
+```js
+$("ul").sortable({
+    delay: 2,
+    opacity: 0.35
+})
+```
+

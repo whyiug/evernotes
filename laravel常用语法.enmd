@@ -1,0 +1,119 @@
+---
+title: laravel常用语法
+tags: []
+notebook: PHP
+---
+
+### 创建（下载）一个laravel项目
+
+```js
+composer create-project laravel/laravel learnlaravel5 5.0.22
+```
+### 数据库迁移
+
+```js
+php artisan make:migration create_article_table --create=articles
+php artisan migrate
+php artisan rollback 
+```
+
+### 数据库数据初始化
+
+```js
+composer dump-autoload
+php artisan db:seed
+```
+### 新建控制器
+
+```js
+php artisan make:controller Admin/AdminHomeController
+php artisan make:controller Admin/AdminHomeController --plain
+```
+### 新建模型
+
+```js
+php artisan make:model Article
+```
+***
+***
+### 模板引擎
+
+```php
+return view('sites.about')->with('name', $name);
+return view('sites.about')->with(['first' => $first, 'second' => $second]);
+return view('sites.about', $arr);
+return view('sites.about', compact('first', 'second'));
+```
+* {{}}转义html语句，防止XSS攻击。{!! !!}不转义，解析html标签
+* 基本用法
+
+```php
+yield('content');
+//
+@extends('layout');
+@section('content');
+//
+@if(count($people) > 0)
+<ul>
+    @foreach($people as $person)
+        <li>$person</li>
+    @endforeach
+</ul>
+@endif
+@stop
+```
+* 链接的三种方法
+
+```php
+<a href="articles/{{$article->id}}">{{ $article->title }}</a>
+<a href="{{ url('articles', $article->id) }}">{{ $article->title }}</a>
+<a href="{{ action('ArticlesController@show', $article->id) }}">{{ $article->title }}</a>
+```
+### 路由
+
+```php
+Route::get('/', function(){
+    return view::('welcome');
+});
+Route::get('/', 'WelcomeController@index');
+Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function()// 路由组，命名空间
+{
+  Route::get('/', 'AdminHomeController@index');
+  Route::resource('pages', 'PagesController');// 资源路由   
+});
+Route::get('pages/{id}', 'PagesController@show');
+// 这样写会覆盖下面的路由
+Route::get('pages/create', 'PagesController@create');
+
+```
+### Eloquent ORM
+* setXXXAtribute
+* scopePublished
+* Carbon对象,$dates
+* $fillable
+* Form-Model-Binding 
+需要引入package
+@include('errors.list');
+### 表单验证
+
+```
+php artisan make:request
+...
+// 或者
+$this->validate($request, []);
+// 打印errors
+```
+
+### 其他
+
+```php
+dd(); 
+findOrFail();
+abort(404);
+Carbon\Carbon::now();
+$request->all();
+$request->get();
+User::latest->get();
+
+
+```
