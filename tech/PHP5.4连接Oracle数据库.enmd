@@ -1,0 +1,8 @@
+---
+title: PHP5.4连接Oracle数据库
+notebook: 近期
+tags:
+---
+# 打开php扩展（下载最新dll文件）
+# 添加oraociei10.dll orannzsbb10.dll oci.dll, 到系统目录下
+# 系统环境变量

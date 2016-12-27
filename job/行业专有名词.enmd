@@ -1,0 +1,23 @@
+---
+title: 行业专有名词
+notebook: 工作文档
+tags:
+---  
+> URS: user requirement specification 用户需求规格书  
+> FAT: Factory Acceptance Test   
+> SAT: Site Acceptance Test  
+> DQ: Design Qualification   设计确认  
+> IQ： Installation Qualification    安装确认  
+> OQ： Operation Qualification 操作(运行)确认  
+> PQ： Performance Qualification 性能确认  
+> SOP： Standard operation procedure 标准作业程序
+
+## FAT & SAT
+1、FAT 是Factory Acceptance Test 即出厂测试，是厂家组织的，一般来说用户需要参加，用户要对整个系统和各个部件的功能进行检查，硬件、软件是否正确和完整；性能是否达到要求等。
+2、SAT是Site Acceptance Test ，即现场验收，系统安装到现场后应立即组织检查验收，生产厂家和用户必须参加，可以重复FAT的内容，要检查运输过程中有无损坏或问题，对于控制系统来说，回路校验是必须要做的。
+
+## IQ， OQ， PQ， DQ
+
+Dq、iq、oq、pq应该是指四种验证    Installation Qualification (IQ)    （IQ）安装验证,安装时在用户处进行。它提供文件证明用户安装环境所有的规格及参数完全符合制造商的描述和安全要求。     Operation Qualification (OQ)    （OQ）操作验证,最初于安装之后进行，以后每隔一定时间重复进行，时间由制造商推荐并得到客户确认。它提供文件证明在规定的运行时间内设备的所有部件功能参数达到厂家指标并且运行正常。      Design Qualification (DQ)    (DQ)设计确认是建立能证实在设施设备(包括厂房和辅助系统)的设计过程中，已审查和确认其设计对所有与产品质量有关的规定和要求作了适当的考虑，并将其体现在相关的设施设备的图表(施工图、管线仪表图等)中的书面证明。       Performance Qualification (PQ)    （PQ）运行验证,证明设备（系统）适合于执行特定的分析任务。它只能采用用户的样品按照用户的方法规定，对照CAMAG的OQ和相应的仪器手册，由CAMAG协助客户自己进行认证。 
+
+## SOP是Standard Operating Procedure，标准操作程序

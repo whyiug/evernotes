@@ -1,0 +1,111 @@
+---
+title: RED4S药监系统知识点
+notebook: 工作文档
+tags:
+---
+
+## 专有名词
+
+> productCode：药品通用名编码(7位，比如7654321)  
+> subTypeNo：10位子类编号(比如7654321001，一般同一产品包装规格不一样)，在RED4S系统中，subTypeNo和pkgRadio唯一标志一个产品小类  
+> authorizedNo：批准文号(比如国药准字H20105555)  
+> codeVersion：码资源代码的版本号(2位)  
+> resCode: 码资源代码(5位数)  
+> appFormNo：申请单编号
+> code20: 20位监管码，采用Code 128C条码标识，也有16位监管码
+前7位为品种信息,86(2位版本号da\_resCode的 codeVersion) + 31457（5位码资源代码 da\_resCode的 resCode）
+> resProdCode：RED4S产品代码(12位，比如765432100101)，在RED4S系统中唯一标志一个产品小类  
+> workTeam：班组
+> staffNo：工号
+> boxSN：箱号
+> midPackCode：中包码
+> boxCode：大箱码
+> BPS: Barcode Printing Station
+> EPS: Exception Processing Station
+
+## 基础模块管理
+
+### Customers.txt
+行： 往来单位名称，简称，编号
+### Operators.txt
+行： 编号，名称
+### products.xml
+
+```xml
+<?xml version="1.0"?>
+<productList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="3.0">
+  <product productCode="1005124" productName="枸橼酸铋钾胶囊" comment="">
+    <subType typeNo="1005124001" authorizedNo="国药准字J20110008" type="胶囊剂" spec="0.3g(含铋110mg)" packageSpec="盒10片" packUnit="盒" physicDetailType="10">
+      <resProdCodes>
+        <resCode codeVersion="86" codeLevel="2" pkgRatio="1:15">40394</resCode>
+        <resCode codeVersion="85" codeLevel="1" pkgRatio="1:15">26411</resCode>
+      </resProdCodes>
+    </subType>
+  </product>
+</productList>
+```
+写入da\_product和da\_rescode表
+
+## 监管码导入
+
+### codeFile文件头 
+序列码文件一行为7段  
+分别为`codeLevel, resCode, subTypeNo, pkgRadio, startNo, endNo, codeVersion`  
+比如`#1#16304#1106057001#1:6:72#000000000#000007199#85`
+### 监管码追踪查询
+
+da\_resCode ===> da\_product ===> da\_codePrepare表 ===> da\_productionOrderDetail ===> da\_productionOrder(da\_productionBatch) ===> da\_warehouseOrder(da\_warehosueOrderCode)
+### 分表规则
+prepare表： da\_codePrepare\_resProdCode\_codeVersionresCode\_codeLevel  
+da\_codePrepare\_\[RED4S产品代码\]\_\[码版本号\]\[码资源代码\]\_\[码层级\]
+  
+> 0：未使用  
+> 1：已印刷  
+> 2：已扫描  
+
+***
+producing表： da\_codeProducing\_resProdCode
+
+## 生产任务管理
+### 相关表
+
+> da_productionOrderDetail：生产任务单大箱详情表  
+> da_warehouseOrder：出入库单据表  
+> da_warehouseOrderDetail：出入库单据详情表（品种批次区分）  
+> da_warehouseOrderCode：出入库单据监管码表  
+
+### da\_productionOrder表
+
+* 标记状态的有statusFlag和amount两个字段  
+statusFlag:
+  
+> 0：未结束  
+> 1：已结批  
+> 2：已放行  
+> 3：已导出未上传  
+> 4：已导出
+
+### da_productionOrderDetail：生产任务单大箱详情表
+
+> 0: 整箱  
+> 1: 混箱  
+> 2: 零箱  
+> 3: 拼零箱  
+
+## 关联关系管理
+## 出入库管理
+### 入出库文件导入
+入出库文件头：
+OAW0010712351232          614267              20160120  1
+***
+IA'=>'ProduceWareHouseIn',
+IB'=>'ReturnWareHouseIn',
+IC'=>'PurchaseWareHouseIn',
+ID'=>'AllocateWareHouseIn',
+OA'=>'SalesWareHouseOut',
+OB'=>'ReturnWareHouseOut',
+OC'=>'ReworkWareHouseOut',
+OD'=>'AllocateWareHouseOut',
+OE'=>'DestoryWareHouseOut',
+OF'=>'CheckWareHouseOut',
+OG'=>'DirectAllocateWareHouseOut'

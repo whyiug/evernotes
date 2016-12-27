@@ -1,0 +1,30 @@
+---
+title: 济川实施计划
+notebook: 近期
+tags:
+---
+
+## 数据库
+* 修改数据库登录名
+* 数据字典重新设定
+
+## socket配置
+* 数据库配置
+* 自动启动，自动重启
+
+## apache端口被占用
+网上找到的解除System进程对80端口占用的方法：
+
+* netstat -ano
+* 打开注册表，在cmd下输入：regedit。
+* 找到：HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\HTTP。
+* 在右边找到Start这一项，将其改为0。
+* 重启系统，System进程不会占用80端口。
+
+## 培训
+
+## 安装文档&用户手册
+
+## 功能测试
+* 出入库测试
+* 

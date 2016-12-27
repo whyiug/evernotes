@@ -1,0 +1,29 @@
+---
+title: GS1业务知识点
+notebook: 近期
+tags:
+---
+## 专业名词
+
+> China EDMC:中国电子药品监管码(China Electronic Drug Monitoring Code)  
+> DSCSA: 药品供应链安全法案(Drug Supply Chain Security Act)  
+> DQSA: 药品质量安全法案(Drug Quality Security Act)  
+> SSCC：系列货运包装箱代码(Serial Shipping Container Code)  
+> GTIN: 全球贸易项目代码(Global Trade Item Code)  
+> SGTIN: 序列化的全球贸易项目代码(Serialized Global Trade Item Code)  
+> NDC: 国家药品代码(National Drug Code)  
+> LOT: 批号(Lot Number)  
+> EXP: 有效期(Expiry Date)  
+> UPC: 通用商品代码(Universal Production Code)
+> UCC: (美国)统一编码委员会(Universal Code Council)  
+> SFDA: (中国)国家食品和药品监管管理局(State Food and Drug Administration)  
+> GLN: 全球定位编号(Global Location Number)  
+> SGLN: 序列化的全球定位编号(Serialized Global Location Number)  
+> GCP: 全球企业前缀(Global Company Prefix)  
+> EPC: 电子产品代码(Electronic Product Code)  
+> EDI: 电子数据交换(Electronic Data Interchange)  
+> RFID: 射频识别(Radio Frequency Identification)  
+> SNX: ?序列码交易(Serial Number Exchange)  
+> SOM: ?(Serialized Operations Manager)  
+> CMO: ?(Contract Manufacturing Organization)
+> DUNS: 邓氏编码，一种商业实体或组织机构的标识符(Data Universal Numbering System)

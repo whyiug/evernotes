@@ -1,0 +1,155 @@
+---
+title: PHP操作SQL Server数据库函数
+notebook: Newly
+tags:PHP
+---
+# PHP操作SQL Server数据库函数(新版)
+## 连接数据库
+
+```php
+// Server in the this format: <computer>\<instance name> or 
+// <server>,<port> when using a non default port number
+$server = "127.0.0.1,1433";
+$connnectInfo = ["Database" => "RED4S_GS1_V5_SCP", "UID" => "sa", "PWD" => "sskyadmin1!"];
+// Connect to sqlsrv
+$link = sqlsrv_connect($server, $connnectInfo);
+```
+## 执行查询语句
+
+```php
+$params = array();
+$options =  array( "Scrollable" => SQLSRV_CURSOR_KEYSET );
+$query = "select * from sys_menu";
+$stmt = sqlsrv_query($link, $query , $params, $options)
+```
+
+## 取出数据
+
+### 取出行
+
+```php
+$secondRow = sqlsrv_fetch_object($stmt);
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_NUMERIC)) {
+    file_put_contents("rows.txt", var_export($row, true), FILE_APPEND);
+}
+```
+
+### 取出列
+
+```php
+$stmt_f = sqlsrv_query($conn, "select * from sys_menu");
+$numFields = sqlsrv_num_fields($stmt_f);
+
+while( sqlsrv_fetch( $stmt_f )) {
+        // Iterate through the fields of each row.
+        for($i = 0; $i < $numFields; $i++) { 
+         print_r(sqlsrv_get_field($stmt_f, $i)) ;
+     }
+     echo "\n";
+ }
+```
+## 执行事务
+
+```php
+sqlsrv_begin_transaction($conn);
+sqlsrv_query($conn, $query, $params);
+sqlsrv_commit($conn);
+sqlsrv_rollback($conn);
+```
+
+# PHP操作SQL Server数据库函数(旧版)
+
+## 连接数据库
+
+```php
+$link = mssql_connect("192.168.100.10,1433", "sa", "sskyadmin1!");
+//执行完自动关闭
+mssql_close($link);
+```
+
+## 选择数据库
+
+```php
+mssql_select_db("RED4S_SCP", $link);
+```
+
+## 执行查询语句
+
+```php
+$stmt = mssql_query("select * from sys_menu");
+//
+mssql_free_result($stmt);
+```
+## 取出查询数据
+
+### 取出行
+
+```php
+$firstRow = mssql_fetch_row($stmt);
+$rowObj = mssql_fetch_object($stmt);
+$numRows = mssql_num_rows($stmt);
+while($row = mssql_fetch_array($stmt)){
+
+}
+```
+### 取出列
+
+```php
+if ($numFields = mssql_num_fields($stmt)) {
+    echo "No fields";
+} else {
+    for ($i = 0; $i < mssql_num_fields($stmt); $i ++) {
+        $field = mssql_fetch_field($stmt, $i);
+        // echo $field->name . "\n--";
+        // echo strtoupper($field->type) . "--";
+        // echo $field->max_length . "--\n";
+    }
+}
+```
+
+# PHP TRICK
+
+## 看似冷门但是很有用的函数
+### compact函数
+
+```php
+$firstName = "Young";
+$lastName = "Ray";
+$name = compact("firstName", "lastName");
+print_r($name);
+```
+
+### list函数
+
+```php
+$drink = ["coffere", "tea", "Coco Cola"];
+list($first, , $third) = $drink;
+echo $first;
+echo $third;
+```
+### extract函数
+
+```php
+$second = "large";
+$drink = ["first" => "coffere", "second" => "tea", "third" => "Coco Cola"];
+extract($drink, EXTR_PREFIX_SAME, "wddx");
+echo "$first, $second, $third, $wddx_second\n";
+
+```
+
+### array_walk函数
+
+```php
+$drink = ["a" => "coffee", "b" => "tea", "c" => "Coco Cola"];
+function test_print($item, $key)
+{
+    echo "$key: $item\n";
+}
+// array_walk($drink, 'test_print');
+
+function test_alter(&$item, $key, $prefix){
+    $item = $prefix . ":" . $item;
+}
+array_walk($drink, "test_alter", "drink");
+array_walk($drink, "test_print");
+```

@@ -1,0 +1,21 @@
+---
+title: github
+notebook: Newly
+tags:
+---
+
+# git-destop
+1 commit-sync
+
+# 简单操作流程(git-shell)
+1 在www.github.com上创建项目  
+2 ssh -T  
+3 git clone xxx  
+4 git add .  
+5 git commit -m "first commit ~~"
+6 git push orign master
+
+
+
+
+

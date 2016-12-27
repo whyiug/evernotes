@@ -1,0 +1,12 @@
+---
+title: Tips
+notebook: 近期
+tags:
+---
+
+# 在当前目录下搜索字符串的cmd命令
+
+```sh
+findstr /s /i "string" *.*  
+```
+
